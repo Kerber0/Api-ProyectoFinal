@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
+@SecondaryTable(name = "API_Factura_Proveedor_Empresa", pkJoinColumns = @PrimaryKeyJoinColumn(name = "id_factura"))
 @Table(name = "Facturas_Proveedor", uniqueConstraints = {
     @UniqueConstraint(columnNames = {"id_serie", "numero"})
 })
@@ -24,6 +25,12 @@ import java.util.List;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString(of = {"id", "numero", "fecha", "total"})
 public class FacturaProveedor implements Serializable {
+
+    /** Propietaria exclusiva; compartir maestros no modifica esta relacion. */
+    @jakarta.validation.constraints.NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_empresa", table = "API_Factura_Proveedor_Empresa", nullable = false, updatable = false)
+    private Empresa empresa;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,28 +53,22 @@ public class FacturaProveedor implements Serializable {
 
     @Column(name = "fecha_vencimiento")
     private LocalDate fechaVencimiento;
-
-    @Lob
     @Column(name = "observaciones", columnDefinition = "TEXT")
     private String observaciones;
 
     @NotNull
-    @PositiveOrZero
     @Column(name = "subtotal", nullable = false, precision = 12, scale = 2)
     private BigDecimal subtotal;
 
     @NotNull
-    @PositiveOrZero
     @Column(name = "descuento", nullable = false, precision = 12, scale = 2)
     private BigDecimal descuento;
 
     @NotNull
-    @PositiveOrZero
     @Column(name = "impuestos", nullable = false, precision = 12, scale = 2)
     private BigDecimal impuestos;
 
     @NotNull
-    @PositiveOrZero
     @Column(name = "total", nullable = false, precision = 12, scale = 2)
     private BigDecimal total;
 
@@ -95,6 +96,6 @@ public class FacturaProveedor implements Serializable {
     @JoinColumn(name = "usuario_modificacion", referencedColumnName = "id_usuario")
     private Usuario usuarioModificacion;
 
-    @OneToMany(mappedBy = "factura", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "factura", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private List<LineaFacturaProveedor> lineas;
 }

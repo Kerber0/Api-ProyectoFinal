@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
+@SecondaryTable(name = "API_Operario_Empresa", pkJoinColumns = @PrimaryKeyJoinColumn(name = "id_operario"))
 @Table(name = "Operarios")
 @Getter
 @Setter
@@ -21,6 +22,15 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString(of = {"id", "codigoOperario"})
 public class Operario implements Serializable {
+
+    @Column(name = "version_gestion", nullable = false)
+    private long versionGestion;
+
+    /** Propietaria exclusiva; compartir maestros no modifica esta relacion. */
+    @jakarta.validation.constraints.NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_empresa", table = "API_Operario_Empresa", nullable = false, updatable = false)
+    private Empresa empresa;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -55,6 +65,10 @@ public class Operario implements Serializable {
     @Positive
     @Column(name = "coste_hora_real", precision = 10, scale = 2)
     private BigDecimal costeHoraReal;
+
+    @Size(max = 34)
+    @Column(name = "iban", length = 34)
+    private String iban;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_categoria")

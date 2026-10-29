@@ -2,7 +2,6 @@ package com.empresa.api.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
@@ -36,7 +35,6 @@ public class Cobro implements Serializable {
     private LocalDate fecha;
 
     @NotNull
-    @Positive
     @Column(name = "importe", nullable = false, precision = 12, scale = 2)
     private BigDecimal importe;
 
@@ -47,8 +45,6 @@ public class Cobro implements Serializable {
     @Size(max = 100)
     @Column(name = "numero_operacion", length = 100)
     private String numeroOperacion;
-
-    @Lob
     @Column(name = "observaciones", columnDefinition = "TEXT")
     private String observaciones;
 

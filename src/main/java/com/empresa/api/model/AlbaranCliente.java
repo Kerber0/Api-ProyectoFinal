@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
+@SecondaryTable(name = "API_Albaran_Cliente_Empresa", pkJoinColumns = @PrimaryKeyJoinColumn(name = "id_albaran"))
 @Table(name = "Albaranes_Cliente", uniqueConstraints = {
     @UniqueConstraint(columnNames = {"id_serie", "numero"})
 })
@@ -24,6 +25,12 @@ import java.util.List;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString(of = {"id", "numero", "fecha", "total"})
 public class AlbaranCliente implements Serializable {
+
+    /** Propietaria exclusiva; compartir maestros no modifica esta relacion. */
+    @jakarta.validation.constraints.NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_empresa", table = "API_Albaran_Cliente_Empresa", nullable = false, updatable = false)
+    private Empresa empresa;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,8 +50,6 @@ public class AlbaranCliente implements Serializable {
     @NotNull
     @Column(name = "fecha", nullable = false)
     private LocalDate fecha;
-
-    @Lob
     @Column(name = "observaciones", columnDefinition = "TEXT")
     private String observaciones;
 
@@ -77,8 +82,8 @@ public class AlbaranCliente implements Serializable {
     private Cliente cliente;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_obra")
-    private Obra obra;
+    @JoinColumn(name = "id_factura")
+    private FacturaCliente factura;
 
     @NotNull
     @Column(name = "fecha_creacion", nullable = false, updatable = false)

@@ -1,6 +1,5 @@
 HELP.md
 target/
-.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
@@ -31,3 +30,29 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Instancias locales, datos ficticios y credenciales cifradas por Windows
+.local/
+
+# SQL históricos y recursos privados de demostración conservados solo localmente
+/DB/
+/src/main/resources/db/demo/
+/src/main/resources/demo/
+
+# Configuracion y claves privadas de despliegue
+.env
+.env.*
+*.p12
+*.pfx
+*.jks
+*.key
+*.keystore
+*.pem
+
+# Logs, volcados y copias locales
+*.log
+*.tmp
+*.temp
+*.bak
+*.backup
+*.dump

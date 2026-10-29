@@ -59,8 +59,6 @@ public class Contacto implements Serializable {
     @Size(max = 150)
     @Column(name = "email", length = 150)
     private String email;
-
-    @Lob
     @Column(name = "observaciones", columnDefinition = "TEXT")
     private String observaciones;
 

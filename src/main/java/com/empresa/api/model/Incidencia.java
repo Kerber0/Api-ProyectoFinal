@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
+@SecondaryTable(name = "API_Incidencia_Empresa", pkJoinColumns = @PrimaryKeyJoinColumn(name = "id_incidencia"))
 @Table(name = "Incidencias")
 @Getter
 @Setter
@@ -18,6 +19,12 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString(of = {"id", "fecha"})
 public class Incidencia implements Serializable {
+
+    /** Propietaria exclusiva; compartir maestros no modifica esta relacion. */
+    @jakarta.validation.constraints.NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_empresa", table = "API_Incidencia_Empresa", nullable = false, updatable = false)
+    private Empresa empresa;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,7 +45,6 @@ public class Incidencia implements Serializable {
     private LocalDate fecha;
 
     @NotBlank
-    @Lob
     @Column(name = "descripcion", nullable = false, columnDefinition = "TEXT")
     private String descripcion;
 

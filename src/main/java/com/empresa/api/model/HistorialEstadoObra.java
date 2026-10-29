@@ -42,8 +42,6 @@ public class HistorialEstadoObra implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_usuario")
     private Usuario usuario;
-
-    @Lob
     @Column(name = "observaciones", columnDefinition = "TEXT")
     private String observaciones;
 

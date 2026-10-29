@@ -2,7 +2,6 @@ package com.empresa.api.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Size;
@@ -50,9 +49,8 @@ public class Entidad implements Serializable {
     @Column(name = "nombre_comercial", length = 150)
     private String nombreComercial;
 
-    @NotBlank
     @Size(max = 20)
-    @Column(name = "nif_cif", nullable = false, unique = true, length = 20)
+    @Column(name = "nif_cif", unique = true, length = 20)
     private String nifCif;
 
     @Size(max = 20)

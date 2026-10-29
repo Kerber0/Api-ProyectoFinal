@@ -59,8 +59,6 @@ public class Direccion implements Serializable {
     @Size(max = 20)
     @Column(name = "telefono", length = 20)
     private String telefono;
-
-    @Lob
     @Column(name = "observaciones", columnDefinition = "TEXT")
     private String observaciones;
 

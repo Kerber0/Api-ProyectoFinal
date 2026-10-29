@@ -75,8 +75,6 @@ public class Vehiculo implements Serializable {
     @Size(max = 100)
     @Column(name = "compania_seguro", length = 100)
     private String companiaSeguro;
-
-    @Lob
     @Column(name = "observaciones", columnDefinition = "TEXT")
     private String observaciones;
 

@@ -24,6 +24,8 @@ public class UsuarioCreateDTO {
 
     @NotBlank(message = "La contraseña no puede estar vacía")
     @Size(min = 8, message = "La contraseña debe tener al menos 8 caracteres")
+    @lombok.ToString.Exclude
+    @com.fasterxml.jackson.annotation.JsonProperty(access = com.fasterxml.jackson.annotation.JsonProperty.Access.WRITE_ONLY)
     private String password;
 
     @Email(message = "El formato del email no es válido")

@@ -1,0 +1,36 @@
+{
+  "metodo": "Referencias lexicales de nombres Java; no analiza reflexion ni consumidores externos.",
+  "totalDtoIniciales": 3,
+  "dtoConUsoPrincipalExterno": 0,
+  "dtoConUsoEnPruebas": 3,
+  "dtoSinReferenciasJavaExternas": 0,
+  "dto": [
+    {
+      "tipo": "CobroCreateDTO",
+      "archivo": "src/main/java/com/empresa/api/dto/CobroCreateDTO.java",
+      "referenciasPrincipalesExternas": [],
+      "referenciasPruebas": [
+        "src/test/java/com/empresa/api/ApiApplicationTests.java"
+      ],
+      "referenciasDesdeOtrosDto": []
+    },
+    {
+      "tipo": "UsuarioCreateDTO",
+      "archivo": "src/main/java/com/empresa/api/dto/UsuarioCreateDTO.java",
+      "referenciasPrincipalesExternas": [],
+      "referenciasPruebas": [
+        "src/test/java/com/empresa/api/SeguridadTests.java"
+      ],
+      "referenciasDesdeOtrosDto": []
+    },
+    {
+      "tipo": "UsuarioUpdateDTO",
+      "archivo": "src/main/java/com/empresa/api/dto/UsuarioUpdateDTO.java",
+      "referenciasPrincipalesExternas": [],
+      "referenciasPruebas": [
+        "src/test/java/com/empresa/api/SeguridadTests.java"
+      ],
+      "referenciasDesdeOtrosDto": []
+    }
+  ]
+}

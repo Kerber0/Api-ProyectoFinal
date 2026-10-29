@@ -19,6 +19,16 @@ import java.time.LocalDateTime;
 @ToString(of = {"id", "codigoProveedor"})
 public class Proveedor implements Serializable {
 
+    @Column(name = "version_gestion", nullable = false)
+    private long versionGestion;
+
+    /** Visibilidad del maestro; no transfiere la propiedad de sus documentos. */
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "API_Proveedor_Empresa",
+            joinColumns = @JoinColumn(name = "id_proveedor"),
+            inverseJoinColumns = @JoinColumn(name = "id_empresa"))
+    private java.util.Set<Empresa> empresasVisibles = new java.util.HashSet<>();
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_proveedor")

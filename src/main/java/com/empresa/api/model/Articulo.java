@@ -21,6 +21,13 @@ import java.time.LocalDateTime;
 @ToString(of = {"referencia", "descripcion", "marca", "modelo"})
 public class Articulo implements Serializable {
 
+    /** Visibilidad del maestro; no transfiere la propiedad de sus documentos. */
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "API_Articulo_Empresa",
+            joinColumns = @JoinColumn(name = "referencia_articulo"),
+            inverseJoinColumns = @JoinColumn(name = "id_empresa"))
+    private java.util.Set<Empresa> empresasVisibles = new java.util.HashSet<>();
+
     @Id
     @NotBlank
     @Size(max = 50)

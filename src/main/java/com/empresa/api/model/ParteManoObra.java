@@ -59,8 +59,6 @@ public class ParteManoObra implements Serializable {
     @Positive
     @Column(name = "coste_total", nullable = false, precision = 10, scale = 2)
     private BigDecimal costeTotal;
-
-    @Lob
     @Column(name = "observaciones", columnDefinition = "TEXT")
     private String observaciones;
 

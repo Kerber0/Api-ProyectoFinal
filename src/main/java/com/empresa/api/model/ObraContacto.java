@@ -39,8 +39,6 @@ public class ObraContacto implements Serializable {
     @Size(max = 80)
     @Column(name = "rol_en_obra", nullable = false, length = 80)
     private String rolEnObra;
-
-    @Lob
     @Column(name = "observaciones", columnDefinition = "TEXT")
     private String observaciones;
 

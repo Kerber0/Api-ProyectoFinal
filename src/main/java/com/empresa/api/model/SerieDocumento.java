@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "Series_Documentos", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"tipo_documento", "ejercicio", "nombre"})
+    @UniqueConstraint(columnNames = {"id_empresa", "tipo_documento", "ejercicio", "nombre"})
 })
 @Getter
 @Setter
@@ -21,6 +21,13 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString(of = {"id", "tipoDocumento", "nombre", "prefijo", "ejercicio"})
 public class SerieDocumento implements Serializable {
+
+    @Column(name="id_empresa")
+    private Integer empresa;
+    @Column(nullable=false)
+    private Boolean rectificativa=false;
+    @Column(name="ultima_fecha")
+    private java.time.LocalDate ultimaFecha;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

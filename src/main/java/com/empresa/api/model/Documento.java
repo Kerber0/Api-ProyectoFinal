@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Entity
+@SecondaryTable(name = "API_Archivo_Documento", pkJoinColumns = @PrimaryKeyJoinColumn(name = "id_documento"))
 @Table(name = "Documentos")
 @Getter
 @Setter
@@ -18,6 +19,18 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString(of = {"id", "nombre", "ruta"})
 public class Documento implements Serializable {
+
+    /** Propietaria exclusiva; compartir maestros no modifica esta relacion. */
+    @jakarta.validation.constraints.NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_empresa", table = "API_Archivo_Documento", nullable = false, updatable = false)
+    private Empresa empresa;
+
+    @NotBlank
+    @Size(min = 36, max = 36)
+    @org.hibernate.annotations.JdbcTypeCode(java.sql.Types.CHAR)
+    @Column(name = "clave", table = "API_Archivo_Documento", nullable = false, length = 36, columnDefinition = "char(36)", updatable = false)
+    private String claveArchivo;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,8 +59,6 @@ public class Documento implements Serializable {
     @NotNull
     @Column(name = "fecha_subida", nullable = false)
     private LocalDateTime fechaSubida;
-
-    @Lob
     @Column(name = "observaciones", columnDefinition = "TEXT")
     private String observaciones;
 

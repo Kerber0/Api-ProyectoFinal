@@ -1,0 +1,33 @@
+name: API PostgreSQL
+'on':
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verificar:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Artefactos reproducibles
+        run: |
+          cmp src/main/resources/static/api/v1/openapi.json docs/openapi_dorna_api5.json
+          node scripts/inventariar-arquitectura.mjs --check
+      # Sin URL externa: Testcontainers aplica estructura y semilla pública por separado.
+      - name: Pruebas PostgreSQL y JAR
+        run: node scripts/preparar-ci.mjs
+      - name: Inventario de dependencias
+        run: bash mvnw -B dependency:tree -DoutputType=json -DoutputFile=target/dependencias.json
+      - name: Pruebas del auditor
+        run: node --test scripts/auditar-dependencias.test.mjs
+      - name: Avisos conocidos de dependencias Maven
+        run: node scripts/auditar-dependencias.mjs

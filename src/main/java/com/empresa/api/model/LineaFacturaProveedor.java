@@ -52,7 +52,6 @@ public class LineaFacturaProveedor implements Serializable {
     @Column(name = "iva", precision = 5, scale = 2)
     private BigDecimal iva;
 
-    @PositiveOrZero
     @Column(name = "importe", precision = 12, scale = 2)
     private BigDecimal importe;
 

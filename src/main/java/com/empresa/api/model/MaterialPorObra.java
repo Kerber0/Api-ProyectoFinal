@@ -58,8 +58,6 @@ public class MaterialPorObra implements Serializable {
     @Positive
     @Column(name = "importe", nullable = false, precision = 12, scale = 2)
     private BigDecimal importe;
-
-    @Lob
     @Column(name = "observaciones", columnDefinition = "TEXT")
     private String observaciones;
 

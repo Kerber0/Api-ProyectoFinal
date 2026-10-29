@@ -29,8 +29,6 @@ public class DocumentoGeneral implements Serializable {
     @Size(max = 200)
     @Column(name = "nombre", nullable = false, length = 200)
     private String nombre;
-
-    @Lob
     @Column(name = "descripcion", columnDefinition = "TEXT")
     private String descripcion;
 

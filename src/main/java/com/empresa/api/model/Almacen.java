@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Entity
+@SecondaryTable(name = "API_Almacen_Empresa", pkJoinColumns = @PrimaryKeyJoinColumn(name = "id_almacen"))
 @Table(name = "Almacenes")
 @Getter
 @Setter
@@ -18,6 +19,12 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString(of = {"id", "codigoAlmacen", "descripcion"})
 public class Almacen implements Serializable {
+
+    /** Propietaria exclusiva; compartir maestros no modifica esta relacion. */
+    @jakarta.validation.constraints.NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_empresa", table = "API_Almacen_Empresa", nullable = false, updatable = false)
+    private Empresa empresa;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

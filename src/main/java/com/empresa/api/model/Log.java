@@ -44,8 +44,6 @@ public class Log implements Serializable {
 
     @Column(name = "id_registro")
     private Integer idRegistro;
-
-    @Lob
     @Column(name = "descripcion", columnDefinition = "TEXT")
     private String descripcion;
 

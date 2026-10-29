@@ -21,6 +21,16 @@ import java.time.LocalDateTime;
 @ToString(of = {"id", "codigoCliente"})
 public class Cliente implements Serializable {
 
+    @Column(name = "version_gestion", nullable = false)
+    private long versionGestion;
+
+    /** Visibilidad del maestro; no transfiere la propiedad de sus documentos. */
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "API_Cliente_Empresa",
+            joinColumns = @JoinColumn(name = "id_cliente"),
+            inverseJoinColumns = @JoinColumn(name = "id_empresa"))
+    private java.util.Set<Empresa> empresasVisibles = new java.util.HashSet<>();
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_cliente")
@@ -44,6 +54,10 @@ public class Cliente implements Serializable {
     @PositiveOrZero
     @Column(name = "limite_credito", precision = 12, scale = 2)
     private BigDecimal limiteCredito;
+
+    @Size(max = 34)
+    @Column(name = "iban", length = 34)
+    private String iban;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_zona")
