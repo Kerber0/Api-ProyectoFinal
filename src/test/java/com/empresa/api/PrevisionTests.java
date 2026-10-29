@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.util.List;
@@ -97,6 +98,14 @@ class PrevisionTests extends PostgreSqlIntegrationTest {
         assertThat(resultado.get("saldoFirmadoTotal").asText()).isEqualTo("175.00");
         assertThat(resultado.get("porCobrarFirmado").asText()).isEqualTo("75.00");
         assertThat(resultado.get("porPagarFirmado").asText()).isEqualTo("100.00");
+        BigDecimal cobrar=BigDecimal.ZERO,pagar=BigDecimal.ZERO;
+        for(var item:resultado.get("items")) {
+            BigDecimal saldo=new BigDecimal(item.get("saldoFirmado").asText());
+            if(item.get("tipo").asText().equals("CLIENTE")) cobrar=cobrar.add(saldo); else pagar=pagar.add(saldo);
+        }
+        assertThat(cobrar).isEqualByComparingTo(resultado.get("porCobrarFirmado").asText());
+        assertThat(pagar).isEqualByComparingTo(resultado.get("porPagarFirmado").asText());
+        assertThat(cobrar.add(pagar)).isEqualByComparingTo(resultado.get("saldoFirmadoTotal").asText());
         assertThat(resultado.get("items")).allSatisfy(item -> {
             assertThat(item.get("estadoTemporal").asText()).isEqualTo("PENDIENTE");
             assertThat(item.properties()).extracting(java.util.Map.Entry::getKey).containsExactlyInAnyOrder(

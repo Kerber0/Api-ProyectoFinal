@@ -56,14 +56,14 @@ public class EconomiaRepository {
         String from = joins(tipo) + ambito(tipo) + filtros(tipo, p, args) + fechas("f.fecha", p.pagina(), args);
         if (!p.pagina().q().isEmpty()) { from += " AND f.numero LIKE ? ESCAPE '!'"; args.add(p.pagina().patron()); }
         if (!p.pagina().estado().isEmpty()) { from += " AND s.descripcion = ?"; args.add(p.pagina().estado()); }
-        return pagina(columnasFactura(tipo), from, args, (rs, row) -> factura(rs, tipo), p.pagina());
+        return pagina(columnasFactura(tipo), from, args, (rs, row) -> factura(rs, tipo, empresa), p.pagina());
     }
     Optional<Factura> factura(int empresa, EconomiaTipo tipo, int id) {
         return jdbc.query("SELECT " + columnasFactura(tipo) + joins(tipo) + ambito(tipo) + " AND f.id_factura = ?",
-                (rs, row) -> factura(rs, tipo), empresa, id).stream().findFirst();
+                (rs, row) -> factura(rs, tipo, empresa), empresa, id).stream().findFirst();
     }
-    private static Factura factura(ResultSet rs, EconomiaTipo tipo) throws SQLException {
-        return new Factura(rs.getInt(1), tipo.name(), rs.getString(2), rs.getObject(3, LocalDate.class),
+    private static Factura factura(ResultSet rs, EconomiaTipo tipo, int empresa) throws SQLException {
+        return new Factura(rs.getInt(1), empresa, tipo.name(), rs.getString(2), rs.getObject(3, LocalDate.class),
                 rs.getObject(4, LocalDate.class), rs.getString(5), new Tercero(rs.getInt(6), rs.getString(7), rs.getString(8)),
                 rs.getObject(9, Integer.class), decimal(rs, 10), decimal(rs, 11), decimal(rs, 12), decimal(rs, 13));
     }

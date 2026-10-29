@@ -71,7 +71,8 @@ class EconomiaTests extends PostgreSqlIntegrationTest {
         var c = caso(tipo);
         consultar("1/" + c.ruta() + "?size=1&sort=numero,desc").andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalElements").value(3)).andExpect(jsonPath("$.totalPages").value(3))
-                .andExpect(jsonPath("$.items[0].id").value(c.primera + 2));
+                .andExpect(jsonPath("$.items[0].id").value(c.primera + 2))
+                .andExpect(jsonPath("$.items[0].empresaId").value(1));
         consultar("1/" + c.ruta() + "?size=1&page=1&sort=numero,desc").andExpect(status().isOk())
                 .andExpect(jsonPath("$.items[0].id").value(c.primera + 1));
         consultar("1/" + c.ruta() + "?q=002&estado=PARCIAL&desde=2026-09-15&hasta=2026-09-15&" + c.filtro + "=" + c.tercero)
@@ -81,7 +82,8 @@ class EconomiaTests extends PostgreSqlIntegrationTest {
         consultar("1/" + c.ruta() + "?page=9&size=1").andExpect(status().isOk())
                 .andExpect(jsonPath("$.items").isEmpty()).andExpect(jsonPath("$.totalElements").value(3));
         jdbc.update("UPDATE " + c.facturas + " SET total = 123.45 WHERE id_factura = ?", c.primera);
-        consultar("1/" + c.ruta() + "/" + c.primera).andExpect(status().isOk()).andExpect(jsonPath("$.total").value("123.45"));
+        consultar("1/" + c.ruta() + "/" + c.primera).andExpect(status().isOk())
+                .andExpect(jsonPath("$.empresaId").value(1)).andExpect(jsonPath("$.total").value("123.45"));
         mvc.perform(get("/api/v1/empresas/1/" + c.ruta()).param("q", "%").header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.items").isEmpty());
     }

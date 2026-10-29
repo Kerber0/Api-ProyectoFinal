@@ -67,7 +67,7 @@ public class FacturacionRepository {
         String where=" FROM API_Facturacion WHERE id_empresa=? AND tipo=?";
         long count=jdbc.queryForObject("SELECT count(*)"+where,Long.class,empresa,tipo.name());
         var items=jdbc.query("SELECT id,tipo,estado,id_serie,COALESCE(factura_cliente,factura_proveedor),numero,fecha,original,total"+where+" ORDER BY id LIMIT ? OFFSET ?",
-                (rs,n)->new Resumen(rs.getInt(1),rs.getString(2),rs.getString(3),rs.getInt(4),rs.getObject(5,Integer.class),rs.getString(6),rs.getObject(7,LocalDate.class),rs.getObject(8,Integer.class),rs.getBigDecimal(9).toPlainString()),empresa,tipo.name(),size,(long)page*size);
+                (rs,n)->new Resumen(rs.getInt(1),empresa,rs.getString(2),rs.getString(3),rs.getInt(4),rs.getObject(5,Integer.class),rs.getString(6),rs.getObject(7,LocalDate.class),rs.getObject(8,Integer.class),rs.getBigDecimal(9).toPlainString()),empresa,tipo.name(),size,(long)page*size);
         return new Pagina<>(items,page,size,count,(count+size-1)/size,"id,asc");
     }
 }

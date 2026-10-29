@@ -178,6 +178,45 @@ class InformesTests extends PostgreSqlIntegrationTest {
         consultar("1/informes/" + c.movimientos + PERIODO).andExpect(status().isOk()).andExpect(jsonPath("$.totales.importe").value(c.registrado));
     }
 
+    @Test
+    void grupoExigeLasCuatroSociedadesYSuTotalEsLaSumaAgregada() throws Exception {
+        consultar("1/informes/grupo"+PERIODO).andExpect(status().isNotFound());
+        consultar("1/informes/grupo?desde=invalida").andExpect(status().isNotFound());
+        asignar(2); asignar(3); asignar(4);
+        for(int empresa=3;empresa<=4;empresa++) {
+            int cliente=97000+empresa,proveedor=98000+empresa;
+            jdbc.update("""
+                    INSERT INTO Facturas_Cliente(id_factura,numero,id_serie,fecha,fecha_vencimiento,subtotal,descuento,impuestos,total,id_estado,id_cliente)
+                    SELECT ?,?,id_serie,'2026-09-10','2026-10-10',100,0,21,121,id_estado,id_cliente
+                    FROM Facturas_Cliente WHERE id_factura=5001
+                    """,cliente,"GRUPO-FC-"+empresa);
+            jdbc.update("INSERT INTO API_Factura_Cliente_Empresa VALUES (?,?)",cliente,empresa);
+            jdbc.update("INSERT INTO Cobros(id_factura,fecha,importe) VALUES (?,'2026-09-20',?)",cliente,empresa*10);
+            jdbc.update("""
+                    INSERT INTO Facturas_Proveedor(id_factura,numero,id_serie,fecha,fecha_vencimiento,subtotal,descuento,impuestos,total,id_estado,id_proveedor)
+                    SELECT ?,?,id_serie,'2026-09-10','2026-10-10',50,0,10.50,60.50,id_estado,id_proveedor
+                    FROM Facturas_Proveedor WHERE id_factura=6001
+                    """,proveedor,"GRUPO-FP-"+empresa);
+            jdbc.update("INSERT INTO API_Factura_Proveedor_Empresa VALUES (?,?)",proveedor,empresa);
+            jdbc.update("INSERT INTO Pagos(id_factura,fecha,importe) VALUES (?,'2026-09-21',?)",proveedor,empresa*5);
+        }
+        var grupo=leer("1/informes/grupo"+PERIODO);
+        assertThat(grupo.get("criterio").asText()).isEqualTo("AGREGADO_SIN_ELIMINACIONES_INTEREMPRESA");
+        assertThat(grupo.get("empresas")).hasSize(4);
+        BigDecimal facturado=BigDecimal.ZERO,cobrado=BigDecimal.ZERO,pagado=BigDecimal.ZERO;
+        for(var sociedad:grupo.get("empresas")) {
+            facturado=facturado.add(new BigDecimal(sociedad.at("/valores/facturacionClientes/total").asText()));
+            cobrado=cobrado.add(new BigDecimal(sociedad.at("/valores/cobrosRegistrados/importe").asText()));
+            pagado=pagado.add(new BigDecimal(sociedad.at("/valores/pagosRegistrados/importe").asText()));
+        }
+        assertThat(new BigDecimal(grupo.at("/totales/facturacionClientes/total").asText())).isEqualByComparingTo(facturado);
+        assertThat(new BigDecimal(grupo.at("/totales/cobrosRegistrados/importe").asText())).isEqualByComparingTo(cobrado);
+        assertThat(new BigDecimal(grupo.at("/totales/pagosRegistrados/importe").asText())).isEqualByComparingTo(pagado);
+        assertThat(new BigDecimal(grupo.at("/totales/flujoCajaRegistrado").asText())).isEqualByComparingTo(cobrado.subtract(pagado));
+        jdbc.update("UPDATE API_Empresas SET activo=false WHERE id_empresa=4");
+        consultar("1/informes/grupo"+PERIODO).andExpect(status().isNotFound());
+    }
+
     @ParameterizedTest
     @ValueSource(strings = {"cliente", "proveedor"})
     void permisoDeInformesNoSustituyeAlDeFactura(String tipo) throws Exception {

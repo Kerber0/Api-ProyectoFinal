@@ -50,6 +50,12 @@ public class InformeController {
         return service.saldos(usuario(jwt), empresa, PROVEEDOR, query);
     }
 
+    @GetMapping("/grupo")
+    public InformeGrupo grupo(@AuthenticationPrincipal Jwt jwt,@PathVariable int empresa,
+            @RequestParam MultiValueMap<String,String> query) {
+        return service.grupo(usuario(jwt),empresa,query);
+    }
+
     @GetMapping("/obras-por-estado")
     public InformeEstados estadosObras(@AuthenticationPrincipal Jwt jwt,@PathVariable int empresa,
             @RequestParam MultiValueMap<String,String> query) {

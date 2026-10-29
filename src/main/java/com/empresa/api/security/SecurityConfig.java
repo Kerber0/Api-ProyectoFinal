@@ -176,6 +176,7 @@ public class SecurityConfig {
                                 "/api/v1/empresas/{empresa}/obras", "/api/v1/empresas/{empresa}/obras/{id}",
                                 "/api/v1/empresas/{empresa}/obras/{id}/contactos").authenticated()
                         .requestMatchers(HttpMethod.GET,
+                                "/api/v1/empresas/{empresa}/informes/grupo",
                                 "/api/v1/empresas/{empresa}/presupuestos", "/api/v1/empresas/{empresa}/presupuestos/{id}",
                                 "/api/v1/empresas/{empresa}/presupuestos/{id}/lineas",
                                 "/api/v1/empresas/{empresa}/presupuestos/{id}/lineas/{linea}",

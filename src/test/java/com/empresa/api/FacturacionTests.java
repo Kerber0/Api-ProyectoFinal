@@ -51,7 +51,7 @@ class FacturacionTests extends PostgreSqlIntegrationTest {
         String tabla=tipo==Tipo.CLIENTE?"Facturas_Cliente":"Facturas_Proveedor";
         int antes=jdbc.queryForObject("SELECT count(*) FROM "+tabla,Integer.class);
         var d=crear(tipo);
-        assertThat(d.estado()).isEqualTo("BORRADOR"); assertThat(d.facturaId()).isNull(); assertThat(d.numero()).isNull();
+        assertThat(d.empresaId()).isEqualTo(1); assertThat(d.estado()).isEqualTo("BORRADOR"); assertThat(d.facturaId()).isNull(); assertThat(d.numero()).isNull();
         assertThat(d.subtotal()).isEqualTo("0.15"); assertThat(d.descuento()).isEqualTo("0.02"); assertThat(d.impuestos()).isEqualTo("0.03"); assertThat(d.total()).isEqualTo("0.16");
         assertThat(jdbc.queryForObject("SELECT count(*) FROM "+tabla,Integer.class)).isEqualTo(antes);
         var emitida=service.emitir(admin,1,tipo,d.id());

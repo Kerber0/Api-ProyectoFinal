@@ -9,12 +9,12 @@ public final class GestionUsuariosDtos {
     private GestionUsuariosDtos() {}
     public record Cuenta(int id, String usuario, boolean activo) {}
     public record Crear(@NotBlank @Size(max=50) String usuario,
-                        @NotBlank @Size(min=12,max=72)
+                        @NotBlank @Size(min=15,max=72)
                         @JsonProperty(access=JsonProperty.Access.WRITE_ONLY) String password) {
         @Override public String toString() { return "Crear[credenciales omitidas]"; }
     }
     public record Actualizar(@NotBlank @Size(max=50) String usuario, @NotNull Boolean activo) {}
-    public record Password(@NotBlank @Size(min=12,max=72)
+    public record Password(@NotBlank @Size(min=15,max=72)
                            @JsonProperty(access=JsonProperty.Access.WRITE_ONLY) String password) {
         @Override public String toString() { return "Password[omitida]"; }
     }

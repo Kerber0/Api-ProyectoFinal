@@ -84,6 +84,10 @@ class GestionUsuariosTests extends PostgreSqlIntegrationTest {
         crear("test-invalid",clave).andExpect(status().isBadRequest());
         assertThat(jdbc.queryForObject("SELECT count(*) FROM Usuarios WHERE nombre_usuario='test-invalid'",Integer.class)).isZero();
     }
+    @Test void rechazaClaveDeCatorceCaracteres() throws Exception {
+        crear("test-invalid-14","12345678901234").andExpect(status().isBadRequest());
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM Usuarios WHERE nombre_usuario='test-invalid-14'",Integer.class)).isZero();
+    }
     @Test void noSerializaNiImprimePasswordsDeEntrada() throws Exception {
         var create=new GestionUsuariosDtos.Crear("cuenta",CLAVE);
         var password=new GestionUsuariosDtos.Password(CLAVE);

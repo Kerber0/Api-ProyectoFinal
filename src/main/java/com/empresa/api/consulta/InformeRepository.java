@@ -26,6 +26,12 @@ public class InformeRepository {
         }
     }
 
+    record EmpresaGrupo(int id, String nombre) {}
+    List<EmpresaGrupo> empresasGrupo() {
+        return jdbc.query("SELECT id_empresa,nombre FROM API_Empresas WHERE id_empresa IN (1,2,3,4) AND activo ORDER BY id_empresa",
+                (rs,row)->new EmpresaGrupo(rs.getInt(1),rs.getString(2)));
+    }
+
     Map<YearMonth, Cifras> facturacion(int empresa, EconomiaTipo tipo, InformeParametros p) {
         return agrupar(empresa, p, "f.fecha", "SUM(f.subtotal), SUM(f.descuento), SUM(f.impuestos), SUM(f.total), 0",
                 EconomiaRepository.joins(tipo) + EconomiaRepository.ambito(tipo));

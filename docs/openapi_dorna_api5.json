@@ -16,6 +16,72 @@
     }
   ],
   "paths": {
+    "/empresas/{empresa}/informes/grupo": {
+      "get": {
+        "summary": "Informe económico agregado del Grupo Dorna",
+        "description": "Exige acceso de informes, facturas y tesorería a las cuatro sociedades activas. Devuelve resultados por empresa y su suma agregada. No elimina operaciones internas y no constituye una consolidación contable.",
+        "parameters": [
+          {
+            "name": "empresa",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "format": "int32" }
+          },
+          {
+            "name": "desde",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "format": "date", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" }
+          },
+          {
+            "name": "hasta",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "format": "date", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Agregado completo autorizado",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/InformeGrupo" } } }
+          },
+          "400": {
+            "description": "Periodo invalido",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "401": {
+            "description": "Autenticacion requerida o invalida",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "404": {
+            "description": "Grupo incompleto, empresa inactiva o acceso insuficiente",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "413": {
+            "description": "Cuerpo de solicitud mayor que el limite configurado",
+            "headers": {
+              "X-Request-Id": { "schema": { "type": "string", "format": "uuid" } },
+              "Cache-Control": { "schema": { "type": "string", "const": "no-store" } }
+            },
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "429": {
+            "description": "Cupo por IP agotado o capacidad del limitador alcanzada",
+            "headers": {
+              "X-Request-Id": { "schema": { "type": "string", "format": "uuid" } },
+              "Cache-Control": { "schema": { "type": "string", "const": "no-store" } },
+              "Retry-After": { "schema": { "type": "integer", "minimum": 1 } }
+            },
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "500": {
+            "description": "Error interno sin SQL ni trazas",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          }
+        }
+      }
+    },
+
     "/empresas/{empresa}/informes/obras-por-estado": {
       "get": {
         "summary": "Informe de obras por estado actual: INFORMES y OBRAS",
@@ -42416,6 +42482,7 @@
         "type": "object",
         "required": [
           "id",
+          "empresaId",
           "tipo",
           "numero",
           "fecha",
@@ -42432,6 +42499,12 @@
           "id": {
             "type": "integer",
             "format": "int32"
+          },
+          "empresaId": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1,
+            "description": "Empresa Dorna propietaria de la factura."
           },
           "tipo": {
             "type": "string",
@@ -42875,6 +42948,50 @@
           }
         },
         "additionalProperties": false
+      },
+      "TotalesEconomicos": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "facturacionClientes": { "$ref": "#/components/schemas/TotalesFacturacion" },
+          "facturacionProveedores": { "$ref": "#/components/schemas/TotalesFacturacion" },
+          "cobrosRegistrados": { "$ref": "#/components/schemas/TotalesMovimientos" },
+          "pagosRegistrados": { "$ref": "#/components/schemas/TotalesMovimientos" },
+          "pendienteCobro": { "$ref": "#/components/schemas/TotalesSaldos" },
+          "pendientePago": { "$ref": "#/components/schemas/TotalesSaldos" },
+          "previsionEntradas": { "type": "string", "pattern": "^-?[0-9]+\\.[0-9]{2}$" },
+          "previsionSalidas": { "type": "string", "pattern": "^-?[0-9]+\\.[0-9]{2}$" },
+          "flujoCajaRegistrado": { "type": "string", "pattern": "^-?[0-9]+\\.[0-9]{2}$" },
+          "flujoCajaPrevisto": { "type": "string", "pattern": "^-?[0-9]+\\.[0-9]{2}$" }
+        },
+        "required": ["facturacionClientes","facturacionProveedores","cobrosRegistrados","pagosRegistrados","pendienteCobro","pendientePago","previsionEntradas","previsionSalidas","flujoCajaRegistrado","flujoCajaPrevisto"]
+      },
+      "EmpresaEconomica": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "empresaId": { "type": "integer", "minimum": 1 },
+          "empresaNombre": { "type": "string" },
+          "valores": { "$ref": "#/components/schemas/TotalesEconomicos" }
+        },
+        "required": ["empresaId","empresaNombre","valores"]
+      },
+      "InformeGrupo": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "desde": { "type": "string", "format": "date" },
+          "hasta": { "type": "string", "format": "date" },
+          "criterio": { "type": "string", "const": "AGREGADO_SIN_ELIMINACIONES_INTEREMPRESA" },
+          "empresas": {
+            "type": "array",
+            "minItems": 4,
+            "maxItems": 4,
+            "items": { "$ref": "#/components/schemas/EmpresaEconomica" }
+          },
+          "totales": { "$ref": "#/components/schemas/TotalesEconomicos" }
+        },
+        "required": ["desde","hasta","criterio","empresas","totales"]
       },
       "TotalesFacturacion": {
         "type": "object",
@@ -44614,9 +44731,9 @@
             "type": "string",
             "format": "password",
             "writeOnly": true,
-            "minLength": 12,
+            "minLength": 15,
             "maxLength": 72,
-            "description": "Entre 12 caracteres y 72 bytes UTF-8; nunca se devuelve."
+            "description": "Entre 15 caracteres y 72 bytes UTF-8; nunca se devuelve."
           }
         },
         "additionalProperties": false
@@ -44650,9 +44767,9 @@
             "type": "string",
             "format": "password",
             "writeOnly": true,
-            "minLength": 12,
+            "minLength": 15,
             "maxLength": 72,
-            "description": "Entre 12 caracteres y 72 bytes UTF-8; nunca se devuelve."
+            "description": "Entre 15 caracteres y 72 bytes UTF-8; nunca se devuelve."
           }
         },
         "additionalProperties": false
@@ -45816,6 +45933,10 @@
             "type": "integer",
             "minimum": 1
           },
+          "empresaId": {
+            "type": "integer",
+            "minimum": 1
+          },
           "tipo": {
             "type": "string",
             "enum": [
@@ -45867,6 +45988,7 @@
         },
         "required": [
           "id",
+          "empresaId",
           "tipo",
           "estado",
           "serieId",
@@ -45882,6 +46004,10 @@
         "additionalProperties": false,
         "properties": {
           "id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "empresaId": {
             "type": "integer",
             "minimum": 1
           },
@@ -46021,6 +46147,7 @@
         },
         "required": [
           "id",
+          "empresaId",
           "tipo",
           "estado",
           "serieId",

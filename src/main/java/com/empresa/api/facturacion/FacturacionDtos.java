@@ -24,8 +24,8 @@ public final class FacturacionDtos {
     }
     public record Serie(int id,String nombre,String prefijo,int ejercicio,int longitud,boolean rectificativa,int siguienteNumero,LocalDate ultimaFecha) {}
     public record Linea(int posicion,String descripcion,String cantidad,String precio,String descuento,String iva,String bruto,String rebaja,String base,String cuota,String total) {}
-    public record Resumen(int id,String tipo,String estado,int serieId,Integer facturaId,String numero,LocalDate fecha,Integer originalId,String total) {}
-    public record Detalle(int id,String tipo,String estado,int serieId,int terceroId,Integer obraId,LocalDate fecha,LocalDate vencimiento,
+    public record Resumen(int id,int empresaId,String tipo,String estado,int serieId,Integer facturaId,String numero,LocalDate fecha,Integer originalId,String total) {}
+    public record Detalle(int id,int empresaId,String tipo,String estado,int serieId,int terceroId,Integer obraId,LocalDate fecha,LocalDate vencimiento,
                           String referenciaExterna,Integer originalId,String motivo,Integer facturaId,String numero,String moneda,String regla,
                           String subtotal,String descuento,String impuestos,String total,String empresaNombre,String empresaNif,String terceroNombre,String terceroNif,
                           int autorId,Instant creado,Instant emitido,List<Linea> lineas) {}

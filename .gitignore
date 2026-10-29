@@ -37,7 +37,19 @@ build/
 # SQL históricos y recursos privados de demostración conservados solo localmente
 /DB/
 /src/main/resources/db/demo/
-/src/main/resources/demo/
+/src/main/resources/demo/*
+!/src/main/resources/demo/documentos/
+/src/main/resources/demo/documentos/*
+!/src/main/resources/demo/documentos/1/
+!/src/main/resources/demo/documentos/2/
+/src/main/resources/demo/documentos/1/*
+/src/main/resources/demo/documentos/2/*
+!/src/main/resources/demo/documentos/1/7001/
+!/src/main/resources/demo/documentos/2/7002/
+/src/main/resources/demo/documentos/1/7001/*
+/src/main/resources/demo/documentos/2/7002/*
+!/src/main/resources/demo/documentos/1/7001/c58f5263-bde1-41d9-a592-f909e0dfb871
+!/src/main/resources/demo/documentos/2/7002/baed0adc-712f-44bc-9dd8-4497a3d01696
 
 # Configuracion y claves privadas de despliegue
 .env

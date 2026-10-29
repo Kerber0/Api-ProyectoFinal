@@ -14,4 +14,12 @@ public final class InformeDtos {
     public record Estado(long id, String estado, String color, int orden, long cantidad) {}
     public record InformeEstados(int empresaId, String tipo, LocalDate desde, LocalDate hasta,
                                  String criterio, long total, List<Estado> estados) {}
+    public record TotalesEconomicos(Facturacion facturacionClientes, Facturacion facturacionProveedores,
+                                    Movimientos cobrosRegistrados, Movimientos pagosRegistrados,
+                                    Saldos pendienteCobro, Saldos pendientePago,
+                                    String previsionEntradas, String previsionSalidas,
+                                    String flujoCajaRegistrado, String flujoCajaPrevisto) {}
+    public record EmpresaEconomica(int empresaId, String empresaNombre, TotalesEconomicos valores) {}
+    public record InformeGrupo(LocalDate desde, LocalDate hasta, String criterio,
+                               List<EmpresaEconomica> empresas, TotalesEconomicos totales) {}
 }

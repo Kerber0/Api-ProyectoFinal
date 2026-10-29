@@ -45,7 +45,7 @@ public class GestionUsuariosService {
         if(repository.nombreOcupado(nombre,excepto)) throw ApiException.conflicto("Nombre de usuario no disponible");
     }
     private void validarPassword(String password) {
-        if(password==null || password.isBlank() || password.codePointCount(0,password.length())<12
+        if(password==null || password.isBlank() || password.codePointCount(0,password.length())<15
                 || password.getBytes(StandardCharsets.UTF_8).length>72) throw ApiException.invalido("password");
     }
     private LocalDateTime ahora() { return LocalDateTime.ofInstant(clock.instant(),ZoneOffset.UTC); }

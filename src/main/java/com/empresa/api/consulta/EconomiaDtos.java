@@ -5,7 +5,7 @@ import java.time.LocalDate;
 public final class EconomiaDtos {
     private EconomiaDtos() {}
     public record Tercero(int id, String codigo, String nombre) {}
-    public record Factura(int id, String tipo, String numero, LocalDate fecha, LocalDate fechaVencimiento,
+    public record Factura(int id, int empresaId, String tipo, String numero, LocalDate fecha, LocalDate fechaVencimiento,
                           String estadoOriginal, Tercero tercero, Integer obraId,
                           String subtotal, String descuento, String impuestos, String total) {}
     public record Linea(int id, int facturaId, String descripcion, String cantidad, String precio,

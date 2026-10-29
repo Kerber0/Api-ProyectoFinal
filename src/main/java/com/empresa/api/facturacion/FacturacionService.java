@@ -39,7 +39,7 @@ public class FacturacionService {
     }
     private static String s(BigDecimal n) { return n.toPlainString(); }
     private Detalle detalle(FacturaGestion d) {
-        return new Detalle(d.getId(),d.getTipo(),d.getEstado(),d.getSerie(),d.getCliente()!=null?d.getCliente():d.getProveedor(),d.getObra(),d.getFecha(),d.getVencimiento(),
+        return new Detalle(d.getId(),d.getEmpresa(),d.getTipo(),d.getEstado(),d.getSerie(),d.getCliente()!=null?d.getCliente():d.getProveedor(),d.getObra(),d.getFecha(),d.getVencimiento(),
                 d.getReferenciaExterna(),d.getOriginal(),d.getMotivo(),d.getFacturaCliente()!=null?d.getFacturaCliente():d.getFacturaProveedor(),d.getNumero(),"EUR","EUR_LINEA_HALF_UP_V1",
                 s(d.getSubtotal()),s(d.getDescuento()),s(d.getImpuestos()),s(d.getTotal()),d.getEmpresaNombre(),d.getEmpresaNif(),d.getTerceroNombre(),d.getTerceroNif(),d.getAutor(),d.getCreado(),d.getEmitido(),
                 d.getLineas().stream().map(l->new Linea(l.getPosicion(),l.getDescripcion(),s(l.getCantidad()),s(l.getPrecio()),s(l.getDescuento()),s(l.getIva()),s(l.getBruto()),s(l.getRebaja()),s(l.getBase()),s(l.getCuota()),s(l.getTotal()))).toList());
