@@ -48,4 +48,9 @@ public class ConsultaController {
                                               @RequestParam MultiValueMap<String, String> query) {
         return service.contactosObra(usuario(jwt), empresa, id, query);
     }
+    @GetMapping("/obras/{obra}/contactos/{relacion}")
+    public ContactoObra contactoObra(@AuthenticationPrincipal Jwt jwt, @PathVariable int empresa,
+                                     @PathVariable int obra, @PathVariable int relacion) {
+        return service.contactoObra(usuario(jwt), empresa, obra, relacion);
+    }
 }

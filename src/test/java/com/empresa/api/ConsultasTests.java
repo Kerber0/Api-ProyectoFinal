@@ -49,6 +49,9 @@ class ConsultasTests extends PostgreSqlIntegrationTest {
     private ResultActions consultar(String path) throws Exception {
         return mvc.perform(get("/api/v1/empresas/" + path).header("Authorization", "Bearer " + token));
     }
+    private int relacionContactoObra() {
+        return jdbc.queryForObject("SELECT id_obra_contacto FROM Obra_Contacto WHERE id_obra=1001 AND id_contacto=101", Integer.class);
+    }
 
     @Test
     void listaYDetalleDeClienteConContactosYDireccion() throws Exception {
@@ -91,6 +94,59 @@ class ConsultasTests extends PostgreSqlIntegrationTest {
                 .andExpect(jsonPath("$.fechaInicio").value("2026-09-01"));
         consultar("1/obras/1001/contactos").andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(1))
                 .andExpect(jsonPath("$.items[0].contacto.id").value(101));
+    }
+
+    @Test
+    void consultaContactoIndividualDevuelveLaFichaAutorizada() throws Exception {
+        jdbc.update("UPDATE Contactos SET apellidos='Apellido Demo',telefono='910000001',movil='600000001' WHERE id_contacto=101");
+        consultar("1/obras/1001/contactos/" + relacionContactoObra()).andExpect(status().isOk())
+                .andExpect(jsonPath("$.contacto.id").value(101))
+                .andExpect(jsonPath("$.contacto.nombre").value("Contacto de Prueba 001"))
+                .andExpect(jsonPath("$.contacto.apellidos").value("Apellido Demo"))
+                .andExpect(jsonPath("$.contacto.cargo").value("Responsable de Prueba"))
+                .andExpect(jsonPath("$.contacto.telefono").value("910000001"))
+                .andExpect(jsonPath("$.contacto.movil").value("600000001"))
+                .andExpect(jsonPath("$.contacto.email").value("contacto001@example.net"))
+                .andExpect(jsonPath("$.rol").value("Dato sintético 012"));
+    }
+
+    @Test
+    void consultaContactoIndividualNoExigeEscrituraEnObras() throws Exception {
+        assertThat(jdbc.queryForObject("""
+                SELECT rp.nivel_acceso FROM API_Accesos_Empresa a JOIN Rol_Permiso rp ON rp.id_rol=a.id_rol
+                JOIN Permisos p ON p.id_permiso=rp.id_permiso
+                WHERE a.id_usuario=? AND a.id_empresa=1 AND p.nombre='OBRAS'
+                """, String.class, usuario)).isEqualTo("LECTURA");
+        consultar("1/obras/1001/contactos/" + relacionContactoObra()).andExpect(status().isOk());
+        consultar("1/gestion/obras/1001/contactos/" + relacionContactoObra()).andExpect(status().isNotFound());
+    }
+
+    @Test
+    void consultaContactoIndividualRechazaRelacionDeOtraObra() throws Exception {
+        consultar("1/obras/1002/contactos/" + relacionContactoObra()).andExpect(status().isNotFound());
+    }
+
+    @Test
+    void consultaContactoIndividualRechazaRelacionDeOtraEmpresa() throws Exception {
+        asignar(2);
+        consultar("2/obras/1003/contactos/" + relacionContactoObra()).andExpect(status().isNotFound());
+    }
+
+    @Test
+    void consultaContactoIndividualRechazaRelacionInexistente() throws Exception {
+        consultar("1/obras/1001/contactos/999999").andExpect(status().isNotFound());
+    }
+
+    @Test
+    void consultaContactoIndividualExigePermisoClientes() throws Exception {
+        jdbc.update("DELETE FROM Rol_Permiso WHERE id_permiso=(SELECT id_permiso FROM Permisos WHERE nombre='CLIENTES')");
+        consultar("1/obras/1001/contactos/" + relacionContactoObra()).andExpect(status().isNotFound());
+    }
+
+    @Test
+    void consultaContactoIndividualRechazaSesionInvalida() throws Exception {
+        jdbc.update("DELETE FROM API_Sesiones WHERE id_usuario=?", usuario);
+        consultar("1/obras/1001/contactos/" + relacionContactoObra()).andExpect(status().isUnauthorized());
     }
 
     @Test

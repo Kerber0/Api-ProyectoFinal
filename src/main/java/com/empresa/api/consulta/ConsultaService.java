@@ -50,4 +50,10 @@ public class ConsultaService {
         autorizar(usuario, empresa, "CLIENTES");
         return repository.contactosObra(empresa, id, ConsultaParametros.parse(query, CONTACTOS_OBRA));
     }
+    public ContactoObra contactoObra(int usuario, int empresa, int obra, int relacion) {
+        autorizar(usuario, empresa, "EMPRESA");
+        autorizar(usuario, empresa, "CLIENTES");
+        obra(usuario, empresa, obra);
+        return repository.contactoObra(empresa, obra, relacion).orElseThrow(ApiException::noEncontrado);
+    }
 }

@@ -3958,6 +3958,67 @@
         }
       }
     },
+    "/empresas/{empresa}/obras/{obra}/contactos/{relacion}": {
+      "get": {
+        "summary": "Ficha de un contacto activo asociado a una obra",
+        "description": "Solo lectura. Exige EMPRESA, OBRAS y CLIENTES en la empresa activa. Verifica la pertenencia de la obra, la relacion y el contacto al cliente de la obra. Recurso inexistente, ajeno, inactivo o no autorizado devuelve 404.",
+        "parameters": [
+          {
+            "name": "empresa",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "format": "int32", "minimum": 1 }
+          },
+          {
+            "name": "obra",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "format": "int32", "minimum": 1 }
+          },
+          {
+            "name": "relacion",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "format": "int32", "minimum": 1 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Contacto visible y asociado a la obra",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ContactoObra" } } }
+          },
+          "401": {
+            "description": "Autenticacion requerida o invalida",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "404": {
+            "description": "Recurso inexistente o no autorizado (misma respuesta)",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "413": {
+            "description": "Cuerpo de solicitud mayor que el limite configurado",
+            "headers": {
+              "X-Request-Id": { "schema": { "type": "string", "format": "uuid" } },
+              "Cache-Control": { "schema": { "type": "string", "const": "no-store" } }
+            },
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "429": {
+            "description": "Cupo por IP agotado o capacidad del limitador alcanzada",
+            "headers": {
+              "X-Request-Id": { "schema": { "type": "string", "format": "uuid" } },
+              "Cache-Control": { "schema": { "type": "string", "const": "no-store" } },
+              "Retry-After": { "schema": { "type": "integer", "minimum": 1 } }
+            },
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "500": {
+            "description": "Error interno sin SQL ni trazas",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          }
+        }
+      }
+    },
     "/empresas/{empresa}/presupuestos": {
       "get": {
         "summary": "Presupuestos de la empresa: permiso PRESUPUESTOS",

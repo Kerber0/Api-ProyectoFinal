@@ -114,17 +114,28 @@ public class ConsultaRepository {
         return pagina(DIRECCION_COLUMNS, from, List.of(empresa, proveedor), (rs,row)->direccion(rs), p);
     }
 
+    private static final String CONTACTOS_OBRA = """
+            FROM Obra_Contacto oc JOIN Obras o ON o.id_obra = oc.id_obra
+            JOIN API_Obra_Empresa oe ON oe.id_obra = o.id_obra
+            JOIN Clientes c ON c.id_cliente = o.id_cliente
+            JOIN API_Cliente_Empresa ce ON ce.id_cliente = c.id_cliente AND ce.id_empresa = oe.id_empresa
+            JOIN Contactos k ON k.id_contacto = oc.id_contacto AND k.id_entidad = c.id_entidad
+            WHERE oe.id_empresa = ? AND o.id_obra = ? AND k.activo
+            """;
+
     Pagina<ContactoObra> contactosObra(int empresa, int obra, ConsultaParametros p) {
-        String from = """
-                FROM Obra_Contacto oc JOIN Obras o ON o.id_obra = oc.id_obra
-                JOIN API_Obra_Empresa oe ON oe.id_obra = o.id_obra
-                JOIN Clientes c ON c.id_cliente = o.id_cliente
-                JOIN API_Cliente_Empresa ce ON ce.id_cliente = c.id_cliente AND ce.id_empresa = oe.id_empresa
-                JOIN Contactos k ON k.id_contacto = oc.id_contacto AND k.id_entidad = c.id_entidad
-                WHERE oe.id_empresa = ? AND o.id_obra = ? AND k.activo
-                """;
-        return pagina("oc.id_obra_contacto, oc.rol_en_obra, " + CONTACTO_COLUMNS, from, List.of(empresa, obra),
-                (rs, row) -> new ContactoObra(rs.getInt("id_obra_contacto"), contacto(rs), rs.getString("rol_en_obra")), p);
+        return pagina("oc.id_obra_contacto, oc.rol_en_obra, " + CONTACTO_COLUMNS, CONTACTOS_OBRA,
+                List.of(empresa, obra), (rs, row) -> contactoObra(rs), p);
+    }
+
+    Optional<ContactoObra> contactoObra(int empresa, int obra, int relacion) {
+        return jdbc.query("SELECT oc.id_obra_contacto, oc.rol_en_obra, " + CONTACTO_COLUMNS + " "
+                        + CONTACTOS_OBRA + " AND oc.id_obra_contacto = ?",
+                (rs, row) -> contactoObra(rs), empresa, obra, relacion).stream().findFirst();
+    }
+
+    private static ContactoObra contactoObra(ResultSet rs) throws SQLException {
+        return new ContactoObra(rs.getInt("id_obra_contacto"), contacto(rs), rs.getString("rol_en_obra"));
     }
 
     private static Contacto contacto(ResultSet rs) throws SQLException {
