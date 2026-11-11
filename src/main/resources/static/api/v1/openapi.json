@@ -41755,6 +41755,34 @@
                 "type": "null"
               }
             ]
+          },
+          "responsableContactoRelacionId": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "Identificador de la asignación del contacto responsable a la obra (relación obra_contacto)"
+          },
+          "responsableContactoId": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "Identificador del contacto de la empresa cliente designado como responsable"
+          },
+          "responsableNombre": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Nombre completo del contacto de la empresa cliente responsable"
+          },
+          "responsableRol": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Rol de responsable asignado explícitamente al contacto en la obra"
           }
         },
         "additionalProperties": false

@@ -2,6 +2,8 @@ package com.empresa.api.consulta;
 
 import com.empresa.api.common.Pagina;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -15,6 +17,7 @@ import static com.empresa.api.consulta.ConsultaDtos.*;
 
 @Repository
 public class ConsultaRepository {
+    private static final Logger logger = LoggerFactory.getLogger(ConsultaRepository.class);
     private final JdbcTemplate jdbc;
     public ConsultaRepository(JdbcTemplate jdbc) { this.jdbc = jdbc; }
 
@@ -73,13 +76,50 @@ public class ConsultaRepository {
                 SELECT o.id_obra, o.codigo_obra, o.titulo, o.descripcion, o.presupuesto,
                 o.fecha_inicio, o.fecha_fin_prevista, o.fecha_fin_real, s.descripcion AS estado,
                 c.id_cliente, c.codigo_cliente,
-                """ + NOMBRE + " AS nombre_cliente, " + DIRECCION_COLUMNS + " ";
-        return jdbc.query(select + OBRAS + " AND o.id_obra = ?", (rs, row) -> new ObraDetalle(
+                """ + NOMBRE + " AS nombre_cliente, " + DIRECCION_COLUMNS + ", " +
+                """
+                (SELECT CASE WHEN COUNT(*) = 1 THEN MAX(oc.id_obra_contacto) ELSE NULL END
+                 FROM Obra_Contacto oc
+                 JOIN Contactos k ON k.id_contacto = oc.id_contacto AND k.id_entidad = c.id_entidad
+                 WHERE oc.id_obra = o.id_obra AND k.activo AND UPPER(TRIM(oc.rol_en_obra)) IN ('RESPONSABLE', 'RESPONSABLE DE OBRA')
+                ) AS responsable_contacto_relacion_id,
+                (SELECT CASE WHEN COUNT(*) = 1 THEN MAX(k.id_contacto) ELSE NULL END
+                 FROM Obra_Contacto oc
+                 JOIN Contactos k ON k.id_contacto = oc.id_contacto AND k.id_entidad = c.id_entidad
+                 WHERE oc.id_obra = o.id_obra AND k.activo AND UPPER(TRIM(oc.rol_en_obra)) IN ('RESPONSABLE', 'RESPONSABLE DE OBRA')
+                ) AS responsable_contacto_id,
+                (SELECT CASE WHEN COUNT(*) = 1 THEN MAX(NULLIF(TRIM(CONCAT_WS(' ', k.nombre, k.apellidos)), '')) ELSE NULL END
+                 FROM Obra_Contacto oc
+                 JOIN Contactos k ON k.id_contacto = oc.id_contacto AND k.id_entidad = c.id_entidad
+                 WHERE oc.id_obra = o.id_obra AND k.activo AND UPPER(TRIM(oc.rol_en_obra)) IN ('RESPONSABLE', 'RESPONSABLE DE OBRA')
+                ) AS responsable_nombre,
+                (SELECT CASE WHEN COUNT(*) = 1 THEN MAX(TRIM(oc.rol_en_obra)) ELSE NULL END
+                 FROM Obra_Contacto oc
+                 JOIN Contactos k ON k.id_contacto = oc.id_contacto AND k.id_entidad = c.id_entidad
+                 WHERE oc.id_obra = o.id_obra AND k.activo AND UPPER(TRIM(oc.rol_en_obra)) IN ('RESPONSABLE', 'RESPONSABLE DE OBRA')
+                ) AS responsable_rol,
+                (SELECT COUNT(*)
+                 FROM Obra_Contacto oc
+                 JOIN Contactos k ON k.id_contacto = oc.id_contacto AND k.id_entidad = c.id_entidad
+                 WHERE oc.id_obra = o.id_obra AND k.activo AND UPPER(TRIM(oc.rol_en_obra)) IN ('RESPONSABLE', 'RESPONSABLE DE OBRA')
+                ) AS responsables_designados_count
+                """;
+        return jdbc.query(select + OBRAS + " AND o.id_obra = ?", (rs, row) -> {
+            int totalResponsables = rs.getInt("responsables_designados_count");
+            if (totalResponsables > 1) {
+                logger.warn("Conflicto de designacion de responsable en obra {}: existen {} contactos activos asignados como responsable", id, totalResponsables);
+            }
+            return new ObraDetalle(
                 rs.getInt("id_obra"), rs.getString("codigo_obra"), rs.getString("titulo"), rs.getString("descripcion"),
                 rs.getBigDecimal("presupuesto").toPlainString(), rs.getObject("fecha_inicio", LocalDate.class),
                 rs.getObject("fecha_fin_prevista", LocalDate.class), rs.getObject("fecha_fin_real", LocalDate.class),
                 rs.getString("estado"), new ReferenciaCliente(rs.getInt("id_cliente"), rs.getString("codigo_cliente"),
-                rs.getString("nombre_cliente")), rs.getObject("id_direccion") == null ? null : direccion(rs)), empresa, id)
+                rs.getString("nombre_cliente")), rs.getObject("id_direccion") == null ? null : direccion(rs),
+                rs.getObject("responsable_contacto_relacion_id", Integer.class),
+                rs.getObject("responsable_contacto_id", Integer.class),
+                rs.getString("responsable_nombre"),
+                rs.getString("responsable_rol"));
+        }, empresa, id)
                 .stream().findFirst();
     }
 

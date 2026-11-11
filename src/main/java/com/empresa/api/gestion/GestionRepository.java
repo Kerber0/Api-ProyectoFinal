@@ -50,6 +50,16 @@ public class GestionRepository {
         return existe("SELECT count(*) FROM Obra_Contacto WHERE id_obra=? AND id_contacto=? AND rol_en_obra=? AND id_obra_contacto<>?",
                 obra,contacto,rol,excluir);
     }
+    public boolean obraTieneOtroResponsable(int obra, int excluirRelacion) {
+        return existe("""
+                SELECT count(*) FROM Obra_Contacto oc
+                JOIN Obras o ON o.id_obra = oc.id_obra
+                JOIN Clientes c ON c.id_cliente = o.id_cliente
+                JOIN Contactos k ON k.id_contacto = oc.id_contacto AND k.id_entidad = c.id_entidad
+                WHERE oc.id_obra = ? AND oc.id_obra_contacto <> ? AND k.activo = true
+                  AND UPPER(TRIM(oc.rol_en_obra)) IN ('RESPONSABLE', 'RESPONSABLE DE OBRA')
+                """, obra, excluirRelacion);
+    }
     public void desvincularContactoObra(ObraContacto relacion) { em.remove(relacion); }
     public Presupuesto presupuesto(int empresa,int id) {
         var p=referencia(Presupuesto.class,id); if(p.getEmpresa().getId()!=empresa) throw ApiException.noEncontrado();

@@ -14,7 +14,15 @@ public final class ConsultaDtos {
                             String provincia, String pais, String telefono, String observaciones, boolean principal) {}
     public record ObraDetalle(int id, String codigo, String titulo, String descripcion, String presupuesto,
                               LocalDate fechaInicio, LocalDate fechaFinPrevista, LocalDate fechaFinReal,
-                              String estado, ReferenciaCliente cliente, Direccion direccion) {}
+                              String estado, ReferenciaCliente cliente, Direccion direccion,
+                              Integer responsableContactoRelacionId, Integer responsableContactoId,
+                              String responsableNombre, String responsableRol) {
+        public ObraDetalle(int id, String codigo, String titulo, String descripcion, String presupuesto,
+                           LocalDate fechaInicio, LocalDate fechaFinPrevista, LocalDate fechaFinReal,
+                           String estado, ReferenciaCliente cliente, Direccion direccion) {
+            this(id, codigo, titulo, descripcion, presupuesto, fechaInicio, fechaFinPrevista, fechaFinReal, estado, cliente, direccion, null, null, null, null);
+        }
+    }
     public record Contacto(int id, String nombre, String apellidos, String cargo, String telefono,
                            String movil, String email, String departamento, String observaciones, boolean principal) {}
     public record ContactoObra(int id, Contacto contacto, String rol) {}

@@ -49,6 +49,19 @@ public class GestionContactosObraService {
         if(repository.contactoObraDuplicado(r.getObra().getId(),r.getContacto().getId(),rol,r.getId()==null?0:r.getId()))
             throw ApiException.conflicto("El contacto ya tiene ese rol en la obra");
     }
+    public static boolean esRolResponsable(String rol) {
+        if(rol == null) return false;
+        String r = rol.strip().toUpperCase(java.util.Locale.ROOT);
+        return r.equals("RESPONSABLE") || r.equals("RESPONSABLE DE OBRA");
+    }
+    private void comprobarUnicoResponsable(ObraContacto r,String rol) {
+        if(esRolResponsable(rol)) {
+            int relacionId = r.getId() == null ? 0 : r.getId();
+            if(repository.obraTieneOtroResponsable(r.getObra().getId(), relacionId)) {
+                throw ApiException.conflicto("La obra ya tiene un contacto designado como responsable");
+            }
+        }
+    }
     private Relacion ficha(ObraContacto r) {
         return new Relacion(r.getId(),r.getObra().getId(),r.getContacto().getId(),r.getRolEnObra(),r.getObservaciones());
     }
@@ -71,7 +84,9 @@ public class GestionContactosObraService {
         if(datos.contactoId()==null || datos.contactoId()<1) throw ApiException.invalido("contactoId");
         var r=new ObraContacto(); r.setObra(o); r.setContacto(contacto(o,datos.contactoId()));
         r.setRolEnObra(rol(datos.rol())); r.setObservaciones(observaciones(datos.observaciones()));
-        comprobarDuplicado(r,r.getRolEnObra()); autor(r,usuario,true); repository.guardar(r);
+        comprobarDuplicado(r,r.getRolEnObra());
+        comprobarUnicoResponsable(r,r.getRolEnObra());
+        autor(r,usuario,true); repository.guardar(r);
         repository.auditar(usuario,empresa,"OBRA",obra,"CONTACTO_ASIGNAR",null,referencias(r));
         return ficha(r);
     }
@@ -81,6 +96,7 @@ public class GestionContactosObraService {
         var r=repository.contactoObra(obra,relacion); contacto(o,r.getContacto().getId());
         String rol=rol(datos.rol()), notas=observaciones(datos.observaciones());
         comprobarDuplicado(r,rol);
+        comprobarUnicoResponsable(r,rol);
         boolean cambiaRol=!Objects.equals(rol,r.getRolEnObra()), cambianNotas=!Objects.equals(notas,r.getObservaciones());
         if(cambiaRol || cambianNotas) {
             var antes=referencias(r);
