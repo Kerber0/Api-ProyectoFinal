@@ -2,16 +2,14 @@
   "metodo": "Referencias lexicales de nombres Java; no analiza reflexion ni consumidores externos.",
   "totalDtoIniciales": 3,
   "dtoConUsoPrincipalExterno": 0,
-  "dtoConUsoEnPruebas": 3,
-  "dtoSinReferenciasJavaExternas": 0,
+  "dtoConUsoEnPruebas": 2,
+  "dtoSinReferenciasJavaExternas": 1,
   "dto": [
     {
       "tipo": "CobroCreateDTO",
       "archivo": "src/main/java/com/empresa/api/dto/CobroCreateDTO.java",
       "referenciasPrincipalesExternas": [],
-      "referenciasPruebas": [
-        "src/test/java/com/empresa/api/ApiApplicationTests.java"
-      ],
+      "referenciasPruebas": [],
       "referenciasDesdeOtrosDto": []
     },
     {

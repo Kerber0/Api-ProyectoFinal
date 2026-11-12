@@ -64,6 +64,8 @@ El perfil `despliegue` añade la configuración TLS, límites y rutas de documen
 
 La suite usa una base PostgreSQL aislada. Cuando Docker está disponible, Testcontainers crea la base y carga los dos SQL automáticamente.
 
+El repositorio conserva una selección esencial centrada en autenticación, permisos por empresa, contratos REST y OpenAPI, consultas principales, contacto responsable de obra, validaciones y almacenamiento seguro.
+
 ```powershell
 .\mvnw.cmd -B test
 ```

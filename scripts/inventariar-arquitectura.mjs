@@ -1,17 +1,15 @@
 // Inventario lexical reproducible. Una referencia no prueba uso en ejecucion;
 // su ausencia no autoriza a eliminar una clase ni descarta consumidores externos.
-import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-function javaFiles(folder) {
-  return readdirSync(folder, { withFileTypes: true }).flatMap(entry => {
-    const path = join(folder, entry.name);
-    return entry.isDirectory() ? javaFiles(path) : entry.name.endsWith('.java') ? [path] : [];
-  });
-}
-const paths = [...javaFiles(join(root, 'src/main/java')), ...javaFiles(join(root, 'src/test/java'))];
+const paths = execFileSync('git', [
+  'ls-files', '--cached', '--', 'src/main/java/**/*.java', 'src/test/java/**/*.java'
+], { cwd: root, encoding: 'utf8' })
+  .split(/\r?\n/).filter(Boolean).map(path => join(root, path));
 const files = paths.map(path => ({ path: relative(root, path).replaceAll('\\', '/'), text: readFileSync(path, 'utf8') }));
 const dtoFolder = 'src/main/java/com/empresa/api/dto/';
 const definitions = files.filter(file => file.path.startsWith(dtoFolder) && /public class \w+DTO\b/.test(file.text));
